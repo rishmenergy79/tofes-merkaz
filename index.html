@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>טופס מרכז מאורות</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1f7fc1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Rubik:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#f3f6f9; --paper:#ffffff; --fg:#17222c; --muted:#5d6b78; --line:#d6dee6;
+  --blue:#1f7fc1; --blue-soft:#dbe8f4; --orange:#ec7c2c; --orange-soft:#fbe0d3;
+  --ok:#1f8a4c; --bad:#c0392b;
+  --display:"Rubik","Heebo",system-ui,sans-serif; --body:"Heebo",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f161d; --paper:#17212b; --fg:#e7edf3; --muted:#9aa8b5; --line:#2b3a48;
+  --blue:#5aaee8; --blue-soft:#1d3346; --orange:#f39a55; --orange-soft:#3a281d;
+  --ok:#4cc483; --bad:#ef6b5c; color-scheme:dark}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:920px;margin:0 auto;padding-block:16px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+h1{font-family:var(--display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-size:18px;margin:0}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar img{height:44px;width:auto}
+.who{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted)}
+.who b{color:var(--fg)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;font:inherit;font-weight:700;color:var(--muted);padding:9px 14px;border-bottom:3px solid transparent;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.kind{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--paper);padding:3px}
+.kind button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:7px 18px;border-radius:999px;cursor:pointer}
+.kind button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.idstrip{background:var(--paper);border:2px solid var(--blue);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 16px 22px;display:grid;gap:20px}
+section{display:grid;gap:12px}
+.tag{justify-self:start;background:var(--orange);color:#fff;font-family:var(--display);font-weight:700;padding:4px 22px 4px 30px;clip-path:polygon(0 50%,14px 0,100% 0,100% 100%,14px 100%);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.span2{grid-column:span 2}.span4{grid-column:1/-1}
+label.f{display:grid;gap:4px;min-width:0}
+label.f>span{font-size:13px;font-weight:700;color:var(--muted)}
+label.f>span b{color:var(--bad)}
+input[type=text],input[type=date],input[type=tel],input[type=email],input[type=password],textarea,select{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.owner input{background:color-mix(in srgb,var(--orange-soft) 60%,var(--bg))}
+#prio{font-size:20px;font-weight:800;letter-spacing:.04em;direction:ltr;text-align:right}
+.yn{display:flex;gap:18px;flex-wrap:wrap}
+.yn fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:0;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.yn legend{font-weight:700;font-size:13px;color:var(--muted);padding:0 4px}
+.radios{display:grid;gap:6px}
+.radios label,.yn label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.hint{background:var(--blue-soft);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6}
+.hint strong{display:block}
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:700;border-radius:8px;padding:10px 18px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--fg)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:default}
+.msg{font-size:14px}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:700}
+.tbl{overflow-x:auto}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.pending{background:var(--blue-soft);color:var(--blue)}
+.pill.done{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.pill.fail{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.pill.off{background:var(--line);color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;margin:6px 0 0}
+.num{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.auth{max-width:380px;margin:8vh auto 0;display:grid;gap:14px;text-align:center}
+.auth img{height:60px;justify-self:center}
+.auth .card{text-align:right;gap:14px}
+.modal{position:fixed;inset:0;background:rgba(10,16,22,.6);display:grid;place-items:center;padding:16px;z-index:20}
+.modal .box{background:var(--paper);border-radius:12px;max-width:640px;width:100%;max-height:92vh;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.modal .box>div{padding:12px 16px}
+.modal .scroll{overflow:auto;background:var(--bg)}
+.modal img{display:block;width:100%;border:1px solid var(--line)}
+.row2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:end}
+@media (max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.idstrip{grid-template-columns:1fr 1fr}.idstrip .pr{grid-column:1/-1}.row2{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.grid{grid-template-columns:1fr}.span2{grid-column:auto}}
+#print{position:fixed;left:-12000px;top:0;width:794px;background:#fff;color:#111;font-family:var(--body);direction:rtl;padding:26px 40px 30px}
+#print .lg{text-align:center}#print .lg img{height:70px}
+#print h3{text-align:center;font-family:var(--display);font-size:28px;margin:6px 0 4px;text-decoration:underline}
+#print .meta{display:flex;justify-content:space-between;font-size:13px;color:#333;margin:4px 0 10px}
+#print .pid{border:2px solid #1f7fc1;border-radius:6px;padding:6px 12px;font-size:15px;font-weight:800;display:flex;justify-content:space-between;margin-top:8px}
+#print .t{display:inline-block;background:#ec7c2c;color:#fff;font-weight:700;padding:3px 20px;margin:12px 0 6px;font-size:15px}
+#print .row{display:grid;gap:8px;margin-bottom:6px}
+#print .c{border:1px solid #9cb9d9;display:flex;flex-direction:column}
+#print .c .h{background:linear-gradient(#b7d0ec,#93b7e0);font-weight:700;font-size:12px;text-align:center;padding:4px}
+#print .c .v{flex:1;background:#dce6f2;min-height:28px;font-size:13px;text-align:center;padding:5px 4px;word-break:break-word}
+#print .c.o .h{background:linear-gradient(#f7c3a8,#f1a37d)}
+#print .c.o .v{background:#f9ddd2}
+#print .note{font-size:13px;margin-top:10px;border-bottom:1px solid #444;padding-bottom:4px;min-height:24px}
+#print .chk{font-size:13px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<!-- כניסה / הגדרה ראשונית -->
+<div class="wrap" id="authView" hidden>
+  <div class="auth">
+    <img src="logo.png" alt="מאורות">
+    <h1 id="authTitle">טופס מרכז – כניסה</h1>
+    <form class="card" id="authForm" novalidate>
+      <p id="setupNote" class="hint" hidden>זו הכניסה הראשונה למערכת. המשתמש שתיצור כאן יהיה מנהל-על, עם הרשאה להוסיף משתמשים ולשנות סיסמאות.</p>
+      <label class="f"><span>שם משתמש</span><input type="text" id="aUser" autocomplete="username"></label>
+      <label class="f"><span>סיסמה</span><input type="password" id="aPass" autocomplete="current-password"></label>
+      <label class="f" id="aPass2Wrap" hidden><span>אימות סיסמה</span><input type="password" id="aPass2" autocomplete="new-password"></label>
+      <button class="btn blue" id="aGo" type="submit">כניסה</button>
+      <span class="msg" id="aMsg" role="status"></span>
+    </form>
+  </div>
+</div>
+
+<!-- אפליקציה -->
+<div class="wrap" id="appView" hidden>
+  <header class="bar">
+    <img src="logo.png" alt="מאורות">
+    <div class="who"><span>מחובר/ת: <b id="meName"></b> <span id="meRole"></span></span><button class="btn small" id="logout" type="button">יציאה</button></div>
+  </header>
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="new" aria-selected="true">טופס חדש</button>
+    <button type="button" role="tab" data-tab="list" aria-selected="false">טפסים שנשלחו</button>
+    <button type="button" role="tab" data-tab="users" aria-selected="false" id="usersTab" hidden>משתמשים</button>
+    <button type="button" role="tab" data-tab="pass" aria-selected="false">החלפת סיסמה</button>
+  </nav>
+
+  <!-- טופס חדש -->
+  <div data-panel="new" style="display:grid;gap:16px">
+    <div class="bar">
+      <h1 id="title">טופס מרכז לפרויקט</h1>
+      <div class="kind" role="group" aria-label="סוג טופס">
+        <button type="button" id="k-reg" aria-pressed="true">רגיל</button>
+        <button type="button" id="k-sto" aria-pressed="false">אגירה</button>
+      </div>
+    </div>
+    <form id="f" novalidate style="display:grid;gap:16px">
+      <div class="idstrip">
+        <label class="f pr"><span>מזהה פריוריטי (מס' הזמנה) <b>*</b></span><input type="text" id="prio" autocomplete="off" placeholder="SO26000000"></label>
+        <label class="f"><span>תאריך</span><input type="date" id="date"></label>
+        <label class="f"><span>שם סוכן</span><input type="text" id="agent"></label>
+      </div>
+      <div class="card">
+        <div class="yn">
+          <fieldset><legend>הפרדה בין יצרן לצרכן</legend>
+            <label><input type="radio" name="sep" value="כן" id="sep-y"> כן</label>
+            <label><input type="radio" name="sep" value="לא" id="sep-n"> לא</label></fieldset>
+          <fieldset><legend>מונה ייצור</legend>
+            <label><input type="radio" name="pmeter" value="כן" id="pm-y"> כן</label>
+            <label><input type="radio" name="pmeter" value="לא" id="pm-n"> לא</label></fieldset>
+        </div>
+        <section class="owner grid">
+          <label class="f"><span>בעל הנכס <b>*</b></span><input type="text" id="owner"></label>
+          <label class="f"><span>ת"ז / ח"פ (יצרן - בעל הנכס)</span><input type="text" id="ownerId" inputmode="numeric"></label>
+          <label class="f"><span>טלפון נייד</span><input type="tel" id="phone"></label>
+          <label class="f"><span>דוא"ל</span><input type="email" id="email"></label>
+        </section>
+        <section>
+          <div class="tag">פרטי מערכת</div>
+          <div class="grid">
+            <label class="f"><span>הספק מערכת (AC)</span><input type="text" id="ac"></label>
+            <label class="f"><span>הספק מערכת (DC)</span><input type="text" id="dc"></label>
+            <label class="f"><span>סוג מבנה</span><input type="text" id="btype"></label>
+            <label class="f"><span>סוג ממיר</span><input type="text" id="inv"></label>
+            <label class="f span2"><span>כתובת התקנה</span><input type="text" id="addr"></label>
+            <label class="f"><span>גוש וחלקה</span><input type="text" id="gush"></label>
+            <div class="radios" role="radiogroup" aria-label="מצב מבנה">
+              <label><input type="radio" name="bstate" value="מבנה קיים" id="bs1"> מבנה קיים</label>
+              <label><input type="radio" name="bstate" value="מבנה בבנייה (יש לצרף גרמושקה)" id="bs2"> מבנה בבנייה (גרמושקה)</label>
+              <label><input type="radio" name="bstate" value="מבנה עתידי (יש לצרף גרמושקה)" id="bs3"> מבנה עתידי (גרמושקה)</label>
+              <label><input type="radio" name="bstate" value="הקמת סככה/חממה (יש לצרף גרמושקה)" id="bs4"> סככה / חממה (גרמושקה)</label>
+            </div>
+          </div>
+        </section>
+        <section id="storage" hidden>
+          <div class="tag">אגירה</div>
+          <div class="grid">
+            <label class="f"><span>הספק פאנלים (AC*3)</span><input type="text" id="panels"></label>
+            <label class="f"><span>קיבולת מתקן אגירה</span><input type="text" id="cap"></label>
+            <div class="hint span2"><strong>קיבולת מתקן אגירה:</strong>ג'ינקו – 261*5 · SE – 197*5<br>עקרונית ניתן הכל כפול 6 · נסגר סופית בתיאום טכני</div>
+          </div>
+        </section>
+        <section>
+          <div class="tag">חשבון חשמל</div>
+          <div class="grid">
+            <label class="f"><span>שם הרשום בחשבון חשמל (צרכן)</span><input type="text" id="cname"></label>
+            <label class="f"><span>ת"ז של הצרכן</span><input type="text" id="cid" inputmode="numeric"></label>
+            <label class="f"><span>מס' חוזה</span><input type="text" id="contract" inputmode="numeric"></label>
+            <label class="f"><span>מס' מונה</span><input type="text" id="meter" inputmode="numeric"></label>
+            <label class="f span2"><span>גודל חיבור קיים</span><input type="text" id="conn"></label>
+            <label class="f span2"><span>גודל חיבור נדרש</span><input type="text" id="connReq"></label>
+          </div>
+        </section>
+        <section>
+          <div class="tag">תשלום והערות</div>
+          <div class="grid">
+            <label class="f span2"><span>מחיר לקילואט לפני מע"מ</span><input type="text" id="price" inputmode="decimal"></label>
+            <label class="f span2"><span>מקדמה</span><input type="text" id="adv" inputmode="decimal"></label>
+            <label class="f span4"><span>הערות</span><textarea id="notes" rows="3"></textarea></label>
+          </div>
+        </section>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="go">תצוגה מקדימה ושליחה לפריוריטי</button>
+          <button type="button" class="btn" id="clear">ניקוי טופס</button>
+          <span class="msg" id="msg" role="status"></span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- רשימת טפסים -->
+  <div data-panel="list" class="card" hidden>
+    <div class="bar"><h2>טפסים שנשלחו</h2><button class="btn small" id="refresh" type="button">רענון</button></div>
+    <div class="tbl"><table><thead><tr><th>מזהה פריוריטי</th><th>סוג</th><th>בעל הנכס</th><th>נשלח</th><th>ע"י</th><th>סטטוס</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="empty" id="empty">עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, וההעלאה לפריוריטי מתבצעת אוטומטית בשעות העבודה.</p>
+  </div>
+
+  <!-- משתמשים -->
+  <div data-panel="users" class="card" hidden>
+    <h2>משתמשים</h2>
+    <form id="addUser" class="row2" novalidate>
+      <label class="f"><span>שם משתמש</span><input type="text" id="nuName" autocomplete="off"></label>
+      <label class="f"><span>סיסמה ראשונית</span><input type="text" id="nuPass" autocomplete="off"></label>
+      <label class="f"><span>הרשאה</span><select id="nuRole"><option value="user">משתמש</option><option value="admin">מנהל-על</option></select></label>
+      <button class="btn blue" type="submit">הוספת משתמש</button>
+    </form>
+    <span class="msg" id="uMsg" role="status"></span>
+    <div class="tbl"><table><thead><tr><th>שם משתמש</th><th>הרשאה</th><th>מצב</th><th>סיסמה חדשה</th><th></th></tr></thead><tbody id="uRows"></tbody></table></div>
+  </div>
+
+  <!-- החלפת סיסמה -->
+  <form data-panel="pass" class="card" id="passForm" hidden novalidate style="max-width:420px">
+    <h2>החלפת סיסמה</h2>
+    <label class="f"><span>סיסמה נוכחית</span><input type="password" id="pOld" autocomplete="current-password"></label>
+    <label class="f"><span>סיסמה חדשה</span><input type="password" id="pNew" autocomplete="new-password"></label>
+    <label class="f"><span>אימות סיסמה חדשה</span><input type="password" id="pNew2" autocomplete="new-password"></label>
+    <div class="actions"><button class="btn blue" type="submit">שמירה</button><span class="msg" id="pMsg" role="status"></span></div>
+  </form>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="box">
+    <div><strong id="mTitle">תצוגה מקדימה</strong></div>
+    <div class="scroll"><img id="mImg" alt="תצוגה מקדימה של הטופס"></div>
+    <div class="actions"><button type="button" class="btn primary" id="send">אשר ושלח</button><button type="button" class="btn" id="cancel">חזרה לעריכה</button><span class="msg" id="mMsg"></span></div>
+  </div>
+</div>
+<div id="print"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const SB_URL="https://yajugfebxmehsiegoutp.supabase.co", SB_KEY="sb_publishable_ciuOALr09HjUe1MnIQn3OA_XV6bQiPc";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ERR={bad_login:"שם משתמש או סיסמה שגויים.",weak_password:"הסיסמה צריכה להכיל לפחות 6 תווים.",not_authenticated:"החיבור פג. צריך להיכנס מחדש.",not_admin:"הפעולה מותרת למנהל-על בלבד.",user_exists:"כבר קיים משתמש בשם הזה.",bad_username:"שם המשתמש קצר מדי.",already_setup:"המערכת כבר הוגדרה. היכנס עם המשתמש הקיים.",self_lockout:"אי אפשר להסיר את הרשאת המנהל או לחסום את המשתמש שלך.",missing_prio:"חסר מזהה פריוריטי."};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
+let token=store.get("tm-token"), me=null, setupMode=false;
+
+async function rpc(fn,body){
+  let r;
+  try{r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(body||{})});}
+  catch(e){throw new Error("אין חיבור לשרת. בדוק את האינטרנט ונסה שוב.");}
+  const t=await r.text(); let j=null; try{j=t?JSON.parse(t):null}catch(e){}
+  if(!r.ok){const code=j&&j.message; if(code==="not_authenticated"){logoutLocal();} throw new Error(ERR[code]||code||("שגיאת שרת "+r.status));}
+  return j;
+}
+
+/* ---------- כניסה ---------- */
+async function showAuth(){
+  $("appView").hidden=true;$("authView").hidden=false;
+  try{setupMode=await rpc("tm_needs_setup");}catch(e){$("aMsg").className="msg err";$("aMsg").textContent=e.message;}
+  $("setupNote").hidden=!setupMode;$("aPass2Wrap").hidden=!setupMode;
+  $("authTitle").textContent=setupMode?"טופס מרכז – הגדרה ראשונית":"טופס מרכז – כניסה";
+  $("aGo").textContent=setupMode?"יצירת מנהל-על וכניסה":"כניסה";
+  $("aPass").autocomplete=setupMode?"new-password":"current-password";
+  if(setupMode&&!$("aUser").value)$("aUser").value="אינה";
+}
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault();const m=$("aMsg");m.className="msg";m.textContent="";
+  const u=$("aUser").value.trim(),p=$("aPass").value;
+  if(!u||!p){m.className="msg err";m.textContent="יש למלא שם משתמש וסיסמה.";return;}
+  if(setupMode&&p!==$("aPass2").value){m.className="msg err";m.textContent="הסיסמאות לא תואמות.";return;}
+  $("aGo").disabled=true;
+  try{const r=await rpc(setupMode?"tm_setup":"tm_login",{p_username:u,p_password:p});token=r.token;store.set("tm-token",token);$("aPass").value="";$("aPass2").value="";await enter();}
+  catch(err){m.className="msg err";m.textContent=err.message;}
+  finally{$("aGo").disabled=false;}
+});
+function logoutLocal(){token=null;me=null;store.set("tm-token",null);showAuth();}
+$("logout").onclick=async()=>{const t=token;logoutLocal();if(t)rpc("tm_logout",{p_token:t}).catch(()=>{});};
+
+async function enter(){
+  me=await rpc("tm_me",{p_token:token});
+  $("meName").textContent=me.username;$("meRole").textContent=me.role==="admin"?"(מנהל-על)":"";
+  $("usersTab").hidden=me.role!=="admin";
+  $("authView").hidden=true;$("appView").hidden=false;showTab("new");
+}
+
+/* ---------- לשוניות ---------- */
+function showTab(name){
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));
+  document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==name);
+  if(name==="list")loadForms(); if(name==="users")loadUsers();
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+/* ---------- טופס ---------- */
+let kind="רגיל", pdfB64=null, current=null;
+const FIELDS=["prio","date","agent","owner","ownerId","phone","email","ac","dc","btype","inv","addr","gush","panels","cap","cname","cid","contract","meter","conn","connReq","price","adv","notes"];
+const radio=n=>(document.querySelector(`input[name="${n}"]:checked`)||{}).value||"";
+const today=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"});
+function setKind(k){kind=k;$("k-reg").setAttribute("aria-pressed",k==="רגיל");$("k-sto").setAttribute("aria-pressed",k==="אגירה");
+  $("storage").hidden=k!=="אגירה";$("title").textContent=k==="אגירה"?"טופס מרכז לפרויקט אגירה":"טופס מרכז לפרויקט";saveDraft();}
+$("k-reg").onclick=()=>setKind("רגיל");$("k-sto").onclick=()=>setKind("אגירה");
+function collect(){const d={};FIELDS.forEach(f=>d[f]=$(f).value.trim());d.sep=radio("sep");d.pmeter=radio("pmeter");d.bstate=radio("bstate");d.kind=kind;return d;}
+function saveDraft(){store.set("tm-draft",JSON.stringify(collect()))}
+function loadDraft(){let d=null;try{d=JSON.parse(store.get("tm-draft")||"null")}catch(e){}
+  if(d){FIELDS.forEach(f=>{if(d[f]!=null)$(f).value=d[f]});["sep","pmeter","bstate"].forEach(n=>{document.querySelectorAll(`input[name="${n}"]`).forEach(el=>{el.checked=el.value===d[n]})});if(d.kind)setKind(d.kind);}
+  if(!$("date").value)$("date").value=today();}
+$("f").addEventListener("input",saveDraft);
+function clearForm(){$("f").reset();store.set("tm-draft",null);$("date").value=today();setKind(kind);}
+$("clear").onclick=()=>{clearForm();$("msg").textContent="";};
+
+const ltr=v=>{v=String(v??"");return v&&!/[֐-׿]/.test(v)?"⁦"+v+"⁩":v};
+const fmtDate=s=>s?s.split("-").reverse().join("/"):"";
+const cell=(h,v,o)=>`<div class="c${o?" o":""}"><div class="h">${h}</div><div class="v">${esc(ltr(v))}</div></div>`;
+const row=(n,html)=>`<div class="row" style="grid-template-columns:repeat(${n},1fr)">${html}</div>`;
+function buildPrint(d){
+  const sto=d.kind==="אגירה";
+  const states=["מבנה קיים","מבנה בבנייה (יש לצרף גרמושקה)","מבנה עתידי (יש לצרף גרמושקה)","הקמת סככה/חממה (יש לצרף גרמושקה)"];
+  $("print").innerHTML=`<div class="lg"><img src="logo.png" alt=""></div>
+  <h3>${sto?"טופס מרכז לפרויקט אגירה":"טופס מרכז לפרויקט"}</h3>
+  <div class="pid"><span>מזהה פריוריטי: ${esc(ltr(d.prio))}</span><span>תאריך: ${esc(ltr(fmtDate(d.date)))}</span><span>שם סוכן: ${esc(d.agent)}</span></div>
+  <div class="meta"><span>הפרדה בין יצרן לצרכן: <b>${esc(d.sep||"—")}</b></span><span>מונה ייצור: <b>${esc(d.pmeter||"—")}</b></span></div>
+  ${row(4,cell("בעל הנכס",d.owner,1)+cell('ת"ז/ ח"פ (יצרן - בעל הנכס)',d.ownerId,1)+cell("טלפון נייד",d.phone,1)+cell('דוא"ל',d.email,1))}
+  <div class="t">פרטי מערכת</div>
+  ${row(4,cell("הספק מערכת (AC)",d.ac)+cell("הספק מערכת (DC)",d.dc)+cell("סוג מבנה",d.btype)+cell("סוג ממיר",d.inv))}
+  <div class="row" style="grid-template-columns:2fr 1fr 1.4fr;align-items:start">${cell("כתובת התקנה",d.addr)+cell("גוש וחלקה",d.gush)}
+    <div class="chk">${states.map(s=>`${s===d.bstate?"☒":"☐"} ${s}`).join("<br>")}</div></div>
+  ${sto?`<div class="t">אגירה</div>${row(3,cell("הספק פאנלים (AC*3)",d.panels)+cell("קיבולת מתקן אגירה",d.cap)+`<div class="chk"><b><u>קיבולת מתקן אגירה:</u></b><br>ג'ינקו- 261* 5<br>5*197 - SE<br>עקרונית ניתן הכל כפול 6<br>*נסגר סופית בתיאום טכני</div>`)}`:""}
+  <div class="t">חשבון חשמל</div>
+  ${row(4,cell("שם הרשום בחשבון חשמל (צרכן)",d.cname)+cell('ת"ז של הצרכן',d.cid)+cell("מס' חוזה",d.contract)+cell("מס' מונה",d.meter))}
+  ${row(2,cell("גודל חיבור קיים",d.conn)+cell("גודל חיבור נדרש",d.connReq))}
+  <div class="t">תשלום והערות</div>
+  ${row(2,cell('מחיר לקילואט לפני מע"מ',d.price)+cell("מקדמה",d.adv))}
+  <div class="note">הערות: ${esc(d.notes)}</div>`;
+}
+const fileName=d=>`${d.kind==="אגירה"?"טופס מרכז אגירה":"טופס מרכז"} ${d.prio}.pdf`;
+
+$("f").addEventListener("submit",async e=>{
+  e.preventDefault();const d=collect(),m=$("msg");m.className="msg";
+  const bad=(t,el)=>{m.className="msg err";m.textContent=t;el&&el.focus();};
+  if(!d.prio)return bad("חסר מזהה פריוריטי — בלעדיו אין לאן להעלות את הטופס.",$("prio"));
+  if(!/^[A-Za-z0-9\-]{4,}$/.test(d.prio))return bad("מזהה פריוריטי צריך להיות אותיות לועזיות וספרות בלבד.",$("prio"));
+  if(!d.owner)return bad("חסר שם בעל הנכס.",$("owner"));
+  if(!window.html2canvas||!window.jspdf)return bad("רכיב יצירת ה-PDF לא נטען. רענן את הדף ונסה שוב.");
+  $("go").disabled=true;m.textContent="מכין PDF…";
+  try{
+    buildPrint(d);await document.fonts.ready;
+    await Promise.all([...$("print").querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+    const canvas=await html2canvas($("print"),{scale:1.8,backgroundColor:"#ffffff"});
+    const pdf=new jspdf.jsPDF({unit:"mm",format:"a4"});const h=canvas.height*210/canvas.width;
+    pdf.addImage(canvas.toDataURL("image/jpeg",0.88),"JPEG",0,0,210,Math.min(h,297));
+    pdfB64=pdf.output("datauristring").split(",")[1];current=d;
+    $("mImg").src=canvas.toDataURL("image/jpeg",0.8);$("mTitle").textContent=fileName(d);$("mMsg").textContent="";$("send").disabled=false;$("modal").hidden=false;m.textContent="";
+  }catch(err){bad("יצירת ה-PDF נכשלה: "+(err&&err.message||err));}
+  finally{$("go").disabled=false;}
+});
+$("cancel").onclick=()=>{$("modal").hidden=true};
+$("send").onclick=async()=>{
+  const m=$("mMsg");m.className="msg";m.textContent="שולח…";$("send").disabled=true;
+  try{
+    await rpc("tm_submit",{p_token:token,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fileName(current),p_pdf:pdfB64});
+    $("modal").hidden=true;clearForm();
+    $("msg").className="msg ok";$("msg").textContent=`נשלח. "${fileName(current)}" יועלה לנספחי הזמנה ${current.prio} בפריוריטי, ואינה תקבל מייל.`;
+  }catch(err){m.className="msg err";m.textContent=err.message;$("send").disabled=false;}
+};
+
+/* ---------- רשימת טפסים ---------- */
+function pillFor(s){const c=s==="הועלה"?"done":(s||"").startsWith("נכשל")||s==="לא נמצא בפריוריטי"?"fail":"pending";return `<span class="pill ${c}">${esc(s||"ממתין")}</span>`}
+const fmtTime=s=>s?new Date(s).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+async function loadForms(){
+  $("empty").textContent="טוען…";$("empty").hidden=false;
+  try{
+    const rows=await rpc("tm_list_forms",{p_token:token});
+    $("rows").innerHTML=rows.map(r=>`<tr><td class="num">${esc(r.prio)}</td><td>${esc(r.kind)}</td><td>${esc(r.owner)}</td><td class="num">${esc(fmtTime(r.created_at))}</td><td>${esc(r.created_by||"")}</td><td>${pillFor(r.status)}${r.status_note?`<div style="font-size:12px;color:var(--muted)">${esc(r.status_note)}</div>`:""}</td><td><button class="btn small" type="button" data-pdf="${esc(r.id)}">PDF</button></td></tr>`).join("");
+    $("empty").textContent="עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, וההעלאה לפריוריטי מתבצעת אוטומטית בשעות העבודה.";$("empty").hidden=rows.length>0;
+  }catch(e){$("empty").textContent=e.message;}
+}
+$("refresh").onclick=loadForms;
+$("rows").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-pdf]");if(!b)return;b.disabled=true;
+  try{const f=await rpc("tm_get_form",{p_token:token,p_id:b.dataset.pdf});
+    const bin=atob(f.pdf_b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    const url=URL.createObjectURL(new Blob([arr],{type:"application/pdf"}));const a=document.createElement("a");a.href=url;a.download=f.file_name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  }catch(err){alert(err.message)}finally{b.disabled=false;}
+});
+
+/* ---------- משתמשים ---------- */
+async function loadUsers(){
+  try{
+    const us=await rpc("tm_list_users",{p_token:token});
+    $("uRows").innerHTML=us.map(u=>`<tr data-id="${esc(u.id)}"><td><b>${esc(u.username)}</b></td>
+      <td><select data-role aria-label="הרשאה"><option value="user"${u.role==="user"?" selected":""}>משתמש</option><option value="admin"${u.role==="admin"?" selected":""}>מנהל-על</option></select></td>
+      <td><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-active${u.active?" checked":""}> פעיל</label></td>
+      <td><input type="text" data-newpass placeholder="סיסמה חדשה" autocomplete="off" style="min-width:120px"></td>
+      <td><button class="btn small" type="button" data-save>שמירה</button></td></tr>`).join("");
+  }catch(e){$("uMsg").className="msg err";$("uMsg").textContent=e.message;}
+}
+$("addUser").addEventListener("submit",async e=>{
+  e.preventDefault();const m=$("uMsg");m.className="msg";
+  try{await rpc("tm_add_user",{p_token:token,p_username:$("nuName").value,p_password:$("nuPass").value,p_role:$("nuRole").value});
+    m.className="msg ok";m.textContent=`המשתמש "${$("nuName").value.trim()}" נוסף.`;$("nuName").value="";$("nuPass").value="";$("nuRole").value="user";loadUsers();}
+  catch(err){m.className="msg err";m.textContent=err.message;}
+});
+$("uRows").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-save]");if(!b)return;const tr=b.closest("tr"),m=$("uMsg");m.className="msg";b.disabled=true;
+  try{
+    const id=tr.dataset.id,np=tr.querySelector("[data-newpass]").value;
+    await rpc("tm_admin_update_user",{p_token:token,p_user:id,p_role:tr.querySelector("[data-role]").value,p_active:tr.querySelector("[data-active]").checked});
+    if(np)await rpc("tm_admin_set_password",{p_token:token,p_user:id,p_new:np});
+    m.className="msg ok";m.textContent="נשמר"+(np?", והסיסמה הוחלפה.":".");loadUsers();
+  }catch(err){m.className="msg err";m.textContent=err.message;}finally{b.disabled=false;}
+});
+
+/* ---------- החלפת סיסמה ---------- */
+$("passForm").addEventListener("submit",async e=>{
+  e.preventDefault();const m=$("pMsg");m.className="msg";
+  if($("pNew").value!==$("pNew2").value){m.className="msg err";m.textContent="הסיסמאות החדשות לא תואמות.";return;}
+  try{await rpc("tm_change_password",{p_token:token,p_old:$("pOld").value,p_new:$("pNew").value});["pOld","pNew","pNew2"].forEach(i=>$(i).value="");m.className="msg ok";m.textContent="הסיסמה הוחלפה.";}
+  catch(err){m.className="msg err";m.textContent=err.message;}
+});
+
+/* ---------- התחלה ---------- */
+loadDraft();
+(async()=>{if(token){try{await enter();return;}catch(e){}}showAuth();})();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body>
+</html>

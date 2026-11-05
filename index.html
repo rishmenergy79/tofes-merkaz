@@ -141,6 +141,7 @@ th{font-size:12px;color:var(--muted);font-weight:700}
         <button type="button" id="k-sto" aria-pressed="false">אגירה</button>
       </div>
     </div>
+    <div class="hint" id="editBar" hidden style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><span id="editText"></span><button type="button" class="btn small" id="editCancel">ביטול עריכה</button></div>
     <form id="f" novalidate style="display:grid;gap:16px">
       <div class="idstrip">
         <label class="f pr"><span>מזהה פריוריטי (מס' הזמנה) <b>*</b></span><input type="text" id="prio" autocomplete="off" placeholder="SO26000000"></label>
@@ -320,12 +321,16 @@ function setKind(k){kind=k;$("k-reg").setAttribute("aria-pressed",k==="רגיל"
   $("storage").hidden=k!=="אגירה";$("title").textContent=k==="אגירה"?"טופס מרכז לפרויקט אגירה":"טופס מרכז לפרויקט";saveDraft();}
 $("k-reg").onclick=()=>setKind("רגיל");$("k-sto").onclick=()=>setKind("אגירה");
 function collect(){const d={};FIELDS.forEach(f=>d[f]=$(f).value.trim());d.sep=radio("sep");d.pmeter=radio("pmeter");d.bstate=radio("bstate");d.kind=kind;return d;}
-function saveDraft(){store.set("tm-draft",JSON.stringify(collect()))}
+let editId=null,editVersion=1;
+function saveDraft(){if(!editId)store.set("tm-draft",JSON.stringify(collect()))}
 function loadDraft(){let d=null;try{d=JSON.parse(store.get("tm-draft")||"null")}catch(e){}
   if(d){FIELDS.forEach(f=>{if(d[f]!=null)$(f).value=d[f]});["sep","pmeter","bstate"].forEach(n=>{document.querySelectorAll(`input[name="${n}"]`).forEach(el=>{el.checked=el.value===d[n]})});if(d.kind)setKind(d.kind);}
   if(!$("date").value)$("date").value=today();}
 $("f").addEventListener("input",saveDraft);
-function clearForm(){$("f").reset();store.set("tm-draft",null);$("date").value=today();setKind(kind);}
+function fillForm(d){FIELDS.forEach(f=>$(f).value=d[f]??"");["sep","pmeter","bstate"].forEach(n=>{document.querySelectorAll(`input[name="${n}"]`).forEach(el=>{el.checked=el.value===d[n]})});setKind(d.kind||"רגיל");}
+function endEdit(){editId=null;editVersion=1;$("editBar").hidden=true;$("go").textContent="תצוגה מקדימה ושליחה לפריוריטי";}
+function clearForm(){endEdit();$("f").reset();store.set("tm-draft",null);$("date").value=today();setKind(kind);}
+$("editCancel").onclick=()=>{clearForm();loadDraft();$("msg").textContent="";};
 $("clear").onclick=()=>{clearForm();$("msg").textContent="";};
 
 const ltr=v=>{v=String(v??"");return v&&!/[֐-׿]/.test(v)?"⁦"+v+"⁩":v};
@@ -352,7 +357,7 @@ function buildPrint(d){
   ${row(2,cell('מחיר לקילואט לפני מע"מ',d.price)+cell("מקדמה",d.adv))}
   <div class="note">הערות: ${esc(d.notes)}</div>`;
 }
-const fileName=d=>`${d.kind==="אגירה"?"טופס מרכז אגירה":"טופס מרכז"} ${d.prio}.pdf`;
+const fileName=(d,v)=>`${d.kind==="אגירה"?"טופס מרכז אגירה":"טופס מרכז"} ${d.prio}${v>1?` עדכון ${v}`:""}.pdf`;
 
 $("f").addEventListener("submit",async e=>{
   e.preventDefault();const d=collect(),m=$("msg");m.className="msg";
@@ -369,7 +374,7 @@ $("f").addEventListener("submit",async e=>{
     const pdf=new jspdf.jsPDF({unit:"mm",format:"a4"});const h=canvas.height*210/canvas.width;
     pdf.addImage(canvas.toDataURL("image/jpeg",0.88),"JPEG",0,0,210,Math.min(h,297));
     pdfB64=pdf.output("datauristring").split(",")[1];current=d;
-    $("mImg").src=canvas.toDataURL("image/jpeg",0.8);$("mTitle").textContent=fileName(d);$("mMsg").textContent="";$("send").disabled=false;$("modal").hidden=false;m.textContent="";
+    $("mImg").src=canvas.toDataURL("image/jpeg",0.8);$("mTitle").textContent=fileName(d,editId?editVersion+1:1);$("mMsg").textContent="";$("send").disabled=false;$("modal").hidden=false;m.textContent="";
   }catch(err){bad("יצירת ה-PDF נכשלה: "+(err&&err.message||err));}
   finally{$("go").disabled=false;}
 });
@@ -377,9 +382,11 @@ $("cancel").onclick=()=>{$("modal").hidden=true};
 $("send").onclick=async()=>{
   const m=$("mMsg");m.className="msg";m.textContent="שולח…";$("send").disabled=true;
   try{
-    await rpc("tm_submit",{p_token:token,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fileName(current),p_pdf:pdfB64});
+    const wasEdit=!!editId, fn=fileName(current,wasEdit?editVersion+1:1);
+    if(wasEdit) await rpc("tm_update_form",{p_token:token,p_id:editId,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fn,p_pdf:pdfB64});
+    else await rpc("tm_submit",{p_token:token,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fn,p_pdf:pdfB64});
     $("modal").hidden=true;clearForm();
-    $("msg").className="msg ok";$("msg").textContent=`נשלח. "${fileName(current)}" יועלה לנספחי הזמנה ${current.prio} בפריוריטי, ואינה תקבל מייל.`;
+    $("msg").className="msg ok";$("msg").textContent=`${wasEdit?"העדכון נשמר":"נשלח"}. "${fn}" יועלה לנספחי הזמנה ${current.prio} בפריוריטי בהרצה הקרובה.`;
   }catch(err){m.className="msg err";m.textContent=err.message;$("send").disabled=false;}
 };
 
@@ -390,12 +397,17 @@ async function loadForms(){
   $("empty").textContent="טוען…";$("empty").hidden=false;
   try{
     const rows=await rpc("tm_list_forms",{p_token:token});
-    $("rows").innerHTML=rows.map(r=>`<tr><td class="num">${esc(r.prio)}</td><td>${esc(r.kind)}</td><td>${esc(r.owner)}</td><td class="num">${esc(fmtTime(r.created_at))}</td><td>${esc(r.created_by||"")}</td><td>${pillFor(r.status)}${r.status_note?`<div style="font-size:12px;color:var(--muted)">${esc(r.status_note)}</div>`:""}</td><td><button class="btn small" type="button" data-pdf="${esc(r.id)}">PDF</button></td></tr>`).join("");
+    $("rows").innerHTML=rows.map(r=>`<tr><td class="num">${esc(r.prio)}</td><td>${esc(r.kind)}</td><td>${esc(r.owner)}</td><td class="num">${esc(fmtTime(r.created_at))}</td><td>${esc(r.created_by||"")}</td><td>${pillFor(r.status)}${r.status_note?`<div style="font-size:12px;color:var(--muted)">${esc(r.status_note)}</div>`:""}</td><td style="white-space:nowrap"><button class="btn small" type="button" data-pdf="${esc(r.id)}">PDF</button> ${r.can_edit?`<button class="btn small" type="button" data-edit="${esc(r.id)}">עריכה</button>`:""}</td></tr>`).join("");
     $("empty").textContent="עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, וההעלאה לפריוריטי מתבצעת אוטומטית בשעות העבודה.";$("empty").hidden=rows.length>0;
   }catch(e){$("empty").textContent=e.message;}
 }
 $("refresh").onclick=loadForms;
 $("rows").addEventListener("click",async e=>{
+  const ed=e.target.closest("[data-edit]");
+  if(ed){ed.disabled=true;try{const f=await rpc("tm_get_form",{p_token:token,p_id:ed.dataset.edit});
+      editId=f.id;editVersion=f.version||1;fillForm(f.data);
+      $("editText").textContent=`עריכת טופס ${f.prio} (${f.data.owner||""}). שמירה תעלה לפריוריטי גרסה מעודכנת.`;$("editBar").hidden=false;$("go").textContent="תצוגה מקדימה ושמירת העדכון";
+      $("msg").textContent="";showTab("new");window.scrollTo(0,0);}catch(err){alert(err.message)}finally{ed.disabled=false;}return;}
   const b=e.target.closest("[data-pdf]");if(!b)return;b.disabled=true;
   try{const f=await rpc("tm_get_form",{p_token:token,p_id:b.dataset.pdf});
     const bin=atob(f.pdf_b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);

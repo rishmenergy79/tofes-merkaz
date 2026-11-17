@@ -208,7 +208,7 @@ th{font-size:12px;color:var(--muted);font-weight:700}
           </div>
         </section>
         <div class="actions">
-          <button type="submit" class="btn primary" id="go">תצוגה מקדימה ושליחה לפריוריטי</button>
+          <button type="submit" class="btn primary" id="go">תצוגה מקדימה ושליחה למשרד</button>
           <button type="button" class="btn" id="clear">ניקוי טופס</button>
           <span class="msg" id="msg" role="status"></span>
         </div>
@@ -220,7 +220,7 @@ th{font-size:12px;color:var(--muted);font-weight:700}
   <div data-panel="list" class="card" hidden>
     <div class="bar"><h2>טפסים שנשלחו</h2><button class="btn small" id="refresh" type="button">רענון</button></div>
     <div class="tbl"><table><thead><tr><th>מזהה פריוריטי</th><th>סוג</th><th>בעל הנכס</th><th>נשלח</th><th>ע"י</th><th>סטטוס</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
-    <p class="empty" id="empty">עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, וההעלאה לפריוריטי מתבצעת אוטומטית בשעות העבודה.</p>
+    <p class="empty" id="empty">עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, והשליחה במייל למשרד מתבצעת אוטומטית בשעות העבודה.</p>
   </div>
 
   <!-- משתמשים -->
@@ -328,7 +328,7 @@ function loadDraft(){let d=null;try{d=JSON.parse(store.get("tm-draft")||"null")}
   if(!$("date").value)$("date").value=today();}
 $("f").addEventListener("input",saveDraft);
 function fillForm(d){FIELDS.forEach(f=>$(f).value=d[f]??"");["sep","pmeter","bstate"].forEach(n=>{document.querySelectorAll(`input[name="${n}"]`).forEach(el=>{el.checked=el.value===d[n]})});setKind(d.kind||"רגיל");}
-function endEdit(){editId=null;editVersion=1;$("editBar").hidden=true;$("go").textContent="תצוגה מקדימה ושליחה לפריוריטי";}
+function endEdit(){editId=null;editVersion=1;$("editBar").hidden=true;$("go").textContent="תצוגה מקדימה ושליחה למשרד";}
 function clearForm(){endEdit();$("f").reset();store.set("tm-draft",null);$("date").value=today();setKind(kind);}
 $("editCancel").onclick=()=>{clearForm();loadDraft();$("msg").textContent="";};
 $("clear").onclick=()=>{clearForm();$("msg").textContent="";};
@@ -362,7 +362,7 @@ const fileName=(d,v)=>`${d.kind==="אגירה"?"טופס מרכז אגירה":"�
 $("f").addEventListener("submit",async e=>{
   e.preventDefault();const d=collect(),m=$("msg");m.className="msg";
   const bad=(t,el)=>{m.className="msg err";m.textContent=t;el&&el.focus();};
-  if(!d.prio)return bad("חסר מזהה פריוריטי — בלעדיו אין לאן להעלות את הטופס.",$("prio"));
+  if(!d.prio)return bad("חסר מזהה פריוריטי.",$("prio"));
   if(!/^[A-Za-z0-9\-]{4,}$/.test(d.prio))return bad("מזהה פריוריטי צריך להיות אותיות לועזיות וספרות בלבד.",$("prio"));
   if(!d.owner)return bad("חסר שם בעל הנכס.",$("owner"));
   if(!window.html2canvas||!window.jspdf)return bad("רכיב יצירת ה-PDF לא נטען. רענן את הדף ונסה שוב.");
@@ -386,19 +386,19 @@ $("send").onclick=async()=>{
     if(wasEdit) await rpc("tm_update_form",{p_token:token,p_id:editId,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fn,p_pdf:pdfB64});
     else await rpc("tm_submit",{p_token:token,p_prio:current.prio,p_kind:current.kind,p_data:current,p_file:fn,p_pdf:pdfB64});
     $("modal").hidden=true;clearForm();
-    $("msg").className="msg ok";$("msg").textContent=`${wasEdit?"העדכון נשמר":"נשלח"}. "${fn}" יועלה לנספחי הזמנה ${current.prio} בפריוריטי בהרצה הקרובה.`;
+    $("msg").className="msg ok";$("msg").textContent=`${wasEdit?"העדכון נשמר":"נשלח"}. "${fn}" יישלח במייל למשרד בהרצה הקרובה.`;
   }catch(err){m.className="msg err";m.textContent=err.message;$("send").disabled=false;}
 };
 
 /* ---------- רשימת טפסים ---------- */
-function pillFor(s){const c=s==="הועלה"?"done":(s||"").startsWith("נכשל")||s==="לא נמצא בפריוריטי"?"fail":"pending";return `<span class="pill ${c}">${esc(s||"ממתין")}</span>`}
+function pillFor(s){const c=(s==="הועלה"||s==="נשלח למשרד")?"done":(s||"").startsWith("נכשל")||s==="לא נמצא בפריוריטי"?"fail":"pending";return `<span class="pill ${c}">${esc(s||"ממתין")}</span>`}
 const fmtTime=s=>s?new Date(s).toLocaleString("he-IL",{timeZone:"Asia/Jerusalem",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
 async function loadForms(){
   $("empty").textContent="טוען…";$("empty").hidden=false;
   try{
     const rows=await rpc("tm_list_forms",{p_token:token});
     $("rows").innerHTML=rows.map(r=>`<tr><td class="num">${esc(r.prio)}</td><td>${esc(r.kind)}</td><td>${esc(r.owner)}</td><td class="num">${esc(fmtTime(r.created_at))}</td><td>${esc(r.created_by||"")}</td><td>${pillFor(r.status)}${r.status_note?`<div style="font-size:12px;color:var(--muted)">${esc(r.status_note)}</div>`:""}</td><td style="white-space:nowrap"><button class="btn small" type="button" data-pdf="${esc(r.id)}">PDF</button> ${r.can_edit?`<button class="btn small" type="button" data-edit="${esc(r.id)}">עריכה</button>`:""}</td></tr>`).join("");
-    $("empty").textContent="עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, וההעלאה לפריוריטי מתבצעת אוטומטית בשעות העבודה.";$("empty").hidden=rows.length>0;
+    $("empty").textContent="עוד לא נשלחו טפסים. טופס שנשלח יופיע כאן, והשליחה במייל למשרד מתבצעת אוטומטית בשעות העבודה.";$("empty").hidden=rows.length>0;
   }catch(e){$("empty").textContent=e.message;}
 }
 $("refresh").onclick=loadForms;
@@ -406,7 +406,7 @@ $("rows").addEventListener("click",async e=>{
   const ed=e.target.closest("[data-edit]");
   if(ed){ed.disabled=true;try{const f=await rpc("tm_get_form",{p_token:token,p_id:ed.dataset.edit});
       editId=f.id;editVersion=f.version||1;fillForm(f.data);
-      $("editText").textContent=`עריכת טופס ${f.prio} (${f.data.owner||""}). שמירה תעלה לפריוריטי גרסה מעודכנת.`;$("editBar").hidden=false;$("go").textContent="תצוגה מקדימה ושמירת העדכון";
+      $("editText").textContent=`עריכת טופס ${f.prio} (${f.data.owner||""}). שמירה תשלח למשרד גרסה מעודכנת במייל.`;$("editBar").hidden=false;$("go").textContent="תצוגה מקדימה ושמירת העדכון";
       $("msg").textContent="";showTab("new");window.scrollTo(0,0);}catch(err){alert(err.message)}finally{ed.disabled=false;}return;}
   const b=e.target.closest("[data-pdf]");if(!b)return;b.disabled=true;
   try{const f=await rpc("tm_get_form",{p_token:token,p_id:b.dataset.pdf});
